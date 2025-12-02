@@ -2,6 +2,8 @@ require_relative '../problem'
 
 module Day2
   class Part2 < Problem
+    REGEX = /^(\d+)\1+$/
+
     def self.run
       ranges = load_input
 
@@ -9,17 +11,7 @@ module Day2
       ranges.each do |range|
         range.each do |value|
           string_value = value.to_s
-          length = string_value.length
-          invalid = (1..(length / 2)).any? do |i|
-            part = string_value[...i]
-            rest = string_value[i..]
-            false unless rest.length % part.length == 0
-            rest.split(part).all? { |s| s.empty? }
-          end
-
-          if invalid
-            sum += value
-          end
+          sum += value if string_value.match?(REGEX)
         end
       end
 
