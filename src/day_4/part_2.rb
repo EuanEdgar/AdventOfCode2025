@@ -29,8 +29,4 @@ module Day4
       Grid.new(input.split("\n").map(&:chars))
     end
   end
-
-  class Cell
-    attr_writer :value
-  end
 end

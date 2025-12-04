@@ -27,12 +27,19 @@ module Day4
   end
 
   class Cell
-    attr_reader :value, :row_index, :column_index, :grid
-    def initialize(value, row_index, column_index, grid:)
-      @value = value
+    attr_reader :row_index, :column_index, :grid
+    def initialize(row_index, column_index, grid:)
       @row_index = row_index
       @column_index = column_index
       @grid = grid
+    end
+
+    def value
+      grid.values[row_index][column_index]
+    end
+
+    def value=(value)
+      grid.values[row_index][column_index] = value
     end
 
     def neighbour(ordinal)
@@ -64,13 +71,45 @@ module Day4
     def neighbours
       (0..7).map(&method(:neighbour))
     end
+  end
 
-    def row
-      grid.row(row_index)
+  class Row
+    include Enumerable
+
+    attr_reader :index, :grid
+    def initialize(index, grid:)
+      @index = index
+      @grid = grid
     end
 
-    def column
-      grid.column(column_index)
+    def [](column_index)
+      grid.at(index, column_index)
+    end
+
+    def each
+      width.times do |column_index|
+        yield grid.at(index, column_index)
+      end
+    end
+  end
+
+  class Column
+    include Enumerable
+
+    attr_reader :index, :grid
+    def initialize(index, grid:)
+      @index = index
+      @grid = grid
+    end
+
+    def [](row_index)
+      grid.at(row_index, index)
+    end
+
+    def each
+      height.times do |row_index|
+        yield grid.at(row_index, index)
+      end
     end
   end
 
@@ -92,28 +131,24 @@ module Day4
       if row < 0 || row >= height || column < 0 || column >= width
         nil
       else
-        Cell.new(values[row][column], row, column, grid: self)
+        Cell.new(row, column, grid: self)
       end
     end
 
     def each
-      values.each_with_index do |row, row_index|
-        row.each_with_index do |value, column_index|
-          yield Cell.new(value, row_index, column_index, grid: self)
+      height.times do |row_index|
+        width.times do |column_index|
+          yield self.at(row_index, column_index)
         end
       end
     end
 
     def row(index)
-      values[index].map.with_index do |value, column_index|
-        Cell.new(value, index, column_index, grid: self)
-      end
+      Row.new(index, grid: self)
     end
 
     def column(index)
-      values.map.with_index do |row, row_index|
-        Cell.new(row[index], row_index, index, grid: self)
-      end
+      Column.new(index, grid: self)
     end
   end
 end
