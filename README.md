@@ -23,7 +23,7 @@ require_relative '../problem'
 module Day2
   class Part1 < Problem
     # Optional: customise how input.txt is parsed for this part
-    def self.parse_input(input, part: nil)
+    def self.parse_input(input, part: nil, example: false)
       input.lines.map(&:chomp)
     end
 

@@ -19,15 +19,29 @@ class Problem
     input = File.read(file_path(part: self.part, example: @load_example)).chomp
     if respond_to?(:parse_input)
       m = method(:parse_input)
-      arguments = [input]
+      arguments = []
       kwargs = {}
 
+      value_for = -> (name) do
+        case name
+        when :input
+          input
+        when :part
+          part
+        when :example
+          @load_example
+        else
+          raise ArgumentError, "unable to provide value for parameter \"#{name}\""
+        end
+      end
+
       parameters = m.parameters
-      if parameter = parameters.find { |(type, name)| name == :part }
-        if [:req, :opt].include?(parameter.first)
-          arguments.push(part)
-        elsif [:keyreq, :key].include?(parameter.first)
-          kwargs[:part] = part
+      parameters.each do |(type, name)|
+        case type
+        when :req, :opt
+          arguments.push(value_for.call name)
+        when :keyreq, :key
+          kwargs[name] = value_for.call name
         end
       end
 
